@@ -41,10 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $descripcion = trim((string) ($_POST['descripcion'] ?? ''));
                 $precio = monto_desde_input($_POST['precio'] ?? '0');
                 $stock = max(0, (int) ($_POST['stock'] ?? 0));
-                $emoji = trim((string) ($_POST['emoji'] ?? ''));
-                if ($emoji === '') {
-                    $emoji = '📦';
-                }
+                $imagen = trim((string) ($_POST['imagen'] ?? ''));
 
                 if (strlen($nombre) < 2) {
                     throw new Exception('El nombre del producto es obligatorio.');
@@ -58,15 +55,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 if ($accion === 'producto_crear') {
                     $pdo->prepare(
-                        'INSERT INTO productos (nombre, categoria_id, descripcion, precio, stock, emoji)
-                         VALUES (:nombre, :cat, :desc, :precio, :stock, :emoji)'
+                        'INSERT INTO productos (nombre, categoria_id, descripcion, precio, stock, imagen)
+                         VALUES (:nombre, :cat, :desc, :precio, :stock, :imagen)'
                     )->execute([
                         ':nombre' => $nombre,
                         ':cat' => $categoriaId,
                         ':desc' => $descripcion,
                         ':precio' => $precio,
                         ':stock' => $stock,
-                        ':emoji' => $emoji,
+                        ':imagen' => $imagen,
                     ]);
                     flash('success', 'Producto agregado: ' . $nombre);
                 } else {
@@ -77,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pdo->prepare(
                         'UPDATE productos
                          SET nombre = :nombre, categoria_id = :cat, descripcion = :desc,
-                             precio = :precio, stock = :stock, emoji = :emoji
+                             precio = :precio, stock = :stock, imagen = :imagen
                          WHERE id = :id'
                     )->execute([
                         ':nombre' => $nombre,
@@ -85,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ':desc' => $descripcion,
                         ':precio' => $precio,
                         ':stock' => $stock,
-                        ':emoji' => $emoji,
+                        ':imagen' => $imagen,
                         ':id' => $id,
                     ]);
                     flash('success', 'Producto actualizado: ' . $nombre);
@@ -432,8 +429,8 @@ require __DIR__ . '/partials/navbar.php';
                                 <input class="input" type="number" min="0" id="nuevo_stock" name="stock" value="0" required>
                             </div>
                             <div>
-                                <label for="nuevo_emoji">Emoji</label>
-                                <input class="input" type="text" id="nuevo_emoji" name="emoji" value="📦" maxlength="8">
+                                <label for="nuevo_imagen">Imagen</label>
+                                <input class="input" type="text" id="nuevo_imagen" name="imagen" value="" placeholder="/productos-img/">
                             </div>
                             <div class="admin-full">
                                 <label for="nuevo_descripcion">Descripción</label>
@@ -452,7 +449,7 @@ require __DIR__ . '/partials/navbar.php';
                         <table class="data" style="min-width: 1040px">
                             <thead>
                                 <tr>
-                                    <th>Emoji</th>
+                                    <th>Imagen</th>
                                     <th>Nombre</th>
                                     <th>Categoría</th>
                                     <th>Descripción</th>
@@ -470,8 +467,8 @@ require __DIR__ . '/partials/navbar.php';
                                     ?>
                                     <tr>
                                         <td class="cell-emoji">
-                                            <input class="input" type="text" form="<?= e($formId) ?>" name="emoji"
-                                                   value="<?= e($p['emoji']) ?>" maxlength="8" aria-label="Emoji de <?= e($p['nombre']) ?>">
+                                            <input class="input" type="text" form="<?= e($formId) ?>" name="imagen"
+                                                   value="<?= e($p['imagen']) ?>" placeholder="/productos-img/" aria-label="Imagen de <?= e($p['nombre']) ?>">
                                         </td>
                                         <td class="cell-nombre">
                                             <input class="input" type="text" form="<?= e($formId) ?>" name="nombre"

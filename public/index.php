@@ -93,7 +93,7 @@ require __DIR__ . '/partials/navbar.php';
                 <div class="grid-products">
                     <?php foreach ($productosDestacados as $p): ?>
                         <article class="product-card cat-<?= (int) $p['categoria_id'] ?>">
-                            <div class="product-card-img" aria-hidden="true"><?= htmlspecialchars($p['emoji']) ?></div>
+                            <div class="product-card-img" aria-hidden="true"><img src="<?= e($p['imagen']) ?>" alt="<?= htmlspecialchars($p['nombre']) ?>" loading="lazy"></div>
                             <div class="product-card-body">
                                 <span class="product-category"><?= htmlspecialchars($p['categoria_nombre']) ?></span>
                                 <h3 class="product-name"><?= htmlspecialchars($p['nombre']) ?></h3>
@@ -103,7 +103,7 @@ require __DIR__ . '/partials/navbar.php';
                                     <button class="btn btn-primary btn-add"
                                         data-id="<?= (int) $p['id'] ?>"
                                         data-nombre="<?= htmlspecialchars($p['nombre']) ?>"
-                                        data-emoji="<?= htmlspecialchars($p['emoji']) ?>"
+                                        data-imagen="<?= htmlspecialchars($p['imagen']) ?>"
                                         data-precio="<?= htmlspecialchars($p['precio']) ?>">
                                         Agregar al carrito
                                     </button>

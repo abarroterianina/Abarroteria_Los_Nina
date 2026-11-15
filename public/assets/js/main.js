@@ -41,7 +41,7 @@ function clearLocalCart() {
     localStorage.removeItem(CUPON_KEY);
 }
 
-function addToCart(productId, nombre, emoji, precio, cantidad) {
+function addToCart(productId, nombre, imagen, precio, cantidad) {
     const cart = getCart();
     const existing = cart.find(function (item) {
         return item.id === productId;
@@ -52,7 +52,7 @@ function addToCart(productId, nombre, emoji, precio, cantidad) {
         cart.push({
             id: productId,
             nombre: nombre,
-            emoji: emoji,
+            imagen: imagen,
             precio: precio,
             cantidad: cantidad
         });
@@ -166,7 +166,7 @@ function renderCart() {
         subtotal += precio * cantidad;
         return '' +
             '<div class="cart-item" data-id="' + item.id + '">' +
-                '<div class="cart-item-emoji">' + escapeHtml(item.emoji || '📦') + '</div>' +
+                '<div class="cart-item-emoji"><img src="' + escapeHtml(item.imagen || '') + '" alt="' + escapeHtml(item.nombre) + '" loading="lazy"></div>' +
                 '<div class="cart-item-info">' +
                     '<span class="cart-item-name">' + escapeHtml(item.nombre) + '</span>' +
                     '<span class="cart-item-price">' + formatPrice(precio) + ' c/u</span>' +
@@ -421,7 +421,7 @@ function buildProductCard(p) {
     const safeId = parseInt(p.id) || 0;
     const addBtn = stock <= 0
         ? '<button class="btn btn-primary btn-add" disabled>Agotado</button>'
-        : '<button class="btn btn-primary btn-add" data-id="' + safeId + '" data-nombre="' + escapeHtml(p.nombre) + '" data-emoji="' + escapeHtml(p.emoji || '') + '" data-precio="' + escapeHtml(p.precio) + '">Agregar al carrito</button>';
+        : '<button class="btn btn-primary btn-add" data-id="' + safeId + '" data-nombre="' + escapeHtml(p.nombre) + '" data-imagen="' + escapeHtml(p.imagen || '') + '" data-precio="' + escapeHtml(p.precio) + '">Agregar al carrito</button>';
 
     const reserveBtn = stock > 0
         ? '<button class="btn btn-accent btn-reservar" data-id="' + safeId + '" data-cantidad="1" data-nombre="' + escapeHtml(p.nombre) + '">Reservar</button>'
@@ -429,7 +429,7 @@ function buildProductCard(p) {
 
     return '' +
         '<article class="product-card cat-' + catId + '">' +
-            '<div class="product-card-img" aria-hidden="true">' + escapeHtml(p.emoji || '📦') + '</div>' +
+            '<div class="product-card-img" aria-hidden="true"><img src="' + escapeHtml(p.imagen || '') + '" alt="' + escapeHtml(p.nombre) + '" loading="lazy"></div>' +
             '<div class="product-card-body">' +
                 '<span class="product-category">' + escapeHtml(p.categoria_nombre || '') + '</span>' +
                 '<h3 class="product-name">' + escapeHtml(p.nombre) + '</h3>' +
@@ -517,7 +517,7 @@ function initAddToCart() {
             addToCart(
                 parseInt(addBtn.getAttribute('data-id')) || 0,
                 addBtn.getAttribute('data-nombre') || '',
-                addBtn.getAttribute('data-emoji') || '',
+                addBtn.getAttribute('data-imagen') || '',
                 addBtn.getAttribute('data-precio') || 0,
                 1
             );

@@ -727,6 +727,12 @@ label {
     user-select: none;
 }
 
+.product-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 /* Color por categoría (se aplica con .cat-N en la card) - tonos oscuros apagados */
 .cat-1 { --cat-soft: #2D2518; --cat-strong: #3D301A; } /* Abarrotes  */
 .cat-2 { --cat-soft: #1A2A3D; --cat-strong: #1E3A5D; } /* Lácteos    */
@@ -890,9 +896,15 @@ label {
     justify-content: center;
     width: 62px;
     height: 62px;
-    font-size: 2rem;
     border-radius: var(--radius-sm);
     background: linear-gradient(135deg, var(--color-accent-soft), #9A7B0C);
+}
+
+.cart-item-emoji img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
 }
 
 .cart-item-info {
@@ -1230,8 +1242,7 @@ table.data input[type="number"] {
 }
 
 .cell-emoji input {
-    width: 3.2rem;
-    text-align: center;
+    width: 16rem;
 }
 
 .cell-actions {
