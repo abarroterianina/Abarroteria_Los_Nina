@@ -223,4 +223,4 @@ INSERT INTO productos (nombre, categoria_id, descripcion, precio, stock, imagen)
 ('Pan Dulce 500g', 8, 'Pan dulce artesanal, 500 g', 10.00, 35, 'https://res.cloudinary.com/bupbgq1u/image/upload/v1794771516/sqpm6slxrypq3o02298h.webp'),
 ('Torta de Chocolate 450g', 8, 'Torta de chocolate para compartir', 35.00, 12, 'https://res.cloudinary.com/bupbgq1u/image/upload/v1794771517/crgom4t7cl5jfdncuqfe.webp'),
 ('Bizcocho de Vainilla 300g', 8, 'Bizcocho esponjoso de vainilla', 18.00, 15, 'https://res.cloudinary.com/bupbgq1u/image/upload/v1794771514/rlwektndejeeffcw0vsu.webp'),
-('Pan de Ajo 400g', 8, 'Pan de ajo con mantequilla', 13.00, 3, '🍞');
+('Pan de Ajo 400g', 8, 'Pan de ajo con mantequilla', 13.00, 3, 'https://res.cloudinary.com/bupbgq1u/image/upload/v1794771515/yssajpu8fzo0oskipus2.webp');
