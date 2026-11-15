@@ -251,18 +251,6 @@ CREATE TABLE mensajes_contacto (
 - Redirigir a inventario.php en modo admin si rol = 'admin'.
 - `logout.php` destruye la sesión.
 
----
-
-## 🎨 DISEÑO VISUAL (CSS)
-
-- **Paleta**: colores cálidos de tienda de barrio (tonos tierra: #8B4513, verde fresco: #4CAF50, blanco: #FFFFFF, acento: #FF9800).
-- **Tipografía**: sistema (sans-serif), legible.
-- **Layout**: responsive (mobile-first). Grid de productos: 1 columna en móvil, 3-4 en desktop.
-- **Componentes**: cards con sombra suave, botones redondeados, inputs con focus visible.
-- **Chatbot widget**: burbuja fija abajo-derecha, ventana de chat con scroll, input y botón enviar.
-- **NO usar frameworks CSS** (ni Bootstrap, ni Tailwind). CSS puro, bien organizado.
-
----
 
 ## 🔒 SEGURIDAD BÁSICA
 
@@ -306,12 +294,6 @@ Generar un README con estos pasos exactos (ver `DEPLOYMENT.md` para la estrategi
 
 ## B. Código (GitHub)
 5. Subir el proyecto a un repositorio en GitHub (incluye Dockerfile y .dockerignore).
-
-## C. App (Koyeb — gratuito, no se duerme)
-6. Crear cuenta en https://app.koyeb.com (login con GitHub).
-7. "Create Service" → "Web service" → "Deploy from a container / GitHub".
-8. Puerto = 80, Environment variables: `DATABASE_URL` y `NVIDIA_API_KEY`.
-9. Deploy → URL `https://<app>-<user>.koyeb.app` con HTTPS.
 
 ## Notas
 - El chatbot requiere conexión a internet para llamar a la API de NVIDIA.

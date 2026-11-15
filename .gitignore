@@ -1,12 +1,10 @@
 # Documentación no funcional
 *.md
 !README.md
-!AGENTS.md
-!DEPLOYMENT.md
-!VISUAL_AND_TECHNICAL_GUIDE.md
+.agents 
 
-# Capturas y material visual temporal
-WhatsApp Image*.jpeg
+
+
 
 # Secretos y entornos locales (NUNCA versionar)
 .env
