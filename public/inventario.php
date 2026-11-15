@@ -103,14 +103,6 @@ require __DIR__ . '/partials/navbar.php';
                                     <?= $stock <= 0 ? 'disabled' : '' ?>>
                                     <?= $stock <= 0 ? 'Agotado' : 'Agregar al carrito' ?>
                                 </button>
-                                <?php if ($stock > 0): ?>
-                                    <button class="btn btn-accent btn-reservar"
-                                        data-id="<?= (int) $p['id'] ?>"
-                                        data-cantidad="1"
-                                        data-nombre="<?= htmlspecialchars($p['nombre']) ?>">
-                                        Reservar
-                                    </button>
-                                <?php endif; ?>
                             </div>
                         </div>
                     </article>

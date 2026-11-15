@@ -423,9 +423,7 @@ function buildProductCard(p) {
         ? '<button class="btn btn-primary btn-add" disabled>Agotado</button>'
         : '<button class="btn btn-primary btn-add" data-id="' + safeId + '" data-nombre="' + escapeHtml(p.nombre) + '" data-imagen="' + escapeHtml(p.imagen || '') + '" data-precio="' + escapeHtml(p.precio) + '">Agregar al carrito</button>';
 
-    const reserveBtn = stock > 0
-        ? '<button class="btn btn-accent btn-reservar" data-id="' + safeId + '" data-cantidad="1" data-nombre="' + escapeHtml(p.nombre) + '">Reservar</button>'
-        : '';
+
 
     return '' +
         '<article class="product-card cat-' + catId + '">' +
@@ -435,7 +433,7 @@ function buildProductCard(p) {
                 '<h3 class="product-name">' + escapeHtml(p.nombre) + '</h3>' +
                 '<div class="product-price">' + formatPrice(p.precio) + '</div>' +
                 '<div class="product-stock ' + stockClass + '">' + stockText + '</div>' +
-                '<div class="product-actions">' + addBtn + reserveBtn + '</div>' +
+                '<div class="product-actions">' + addBtn + '</div>' +
             '</div>' +
         '</article>';
 }
@@ -521,19 +519,6 @@ function initAddToCart() {
                 addBtn.getAttribute('data-precio') || 0,
                 1
             );
-            return;
-        }
-        const resBtn = e.target.closest('.btn-reservar');
-        if (resBtn) {
-            e.preventDefault();
-            if (window.LosNinaBot) {
-                window.LosNinaBot.sendReservation(
-                    parseInt(resBtn.getAttribute('data-id')) || 0,
-                    parseInt(resBtn.getAttribute('data-cantidad')) || 1,
-                    resBtn.getAttribute('data-nombre') || '',
-                    resBtn.getAttribute('data-telefono') || ''
-                );
-            }
             return;
         }
         const decBtn = e.target.closest('.qty-decrease');
