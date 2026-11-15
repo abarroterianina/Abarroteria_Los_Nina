@@ -125,9 +125,9 @@ INSERT INTO categorias (nombre) VALUES
 ('Enlatados'),
 ('Panadería');
 
--- Usuario admin (contraseña inicial: NinaBolivia#2026 — cámbiala desde el panel)
+-- Usuario admin (contraseña inicial: Losnina123 — cámbiala desde el panel)
 INSERT INTO usuarios (nombre, email, password_hash, rol) VALUES
-('Admin Los Nina', 'admin@losnina.com', '$2y$10$dIi/6qQ0Luj/zhM4E66P5erHA7VzHNYc4kB2AVwJaE.CpvNEdNrea', 'admin');
+('Admin Los Nina', 'admin@gmail.com', '$2y$10$2AkvFs/t05Gny8WE/aUKWeVBPjibUROM.C7dYY0rphniJ38lNDZZS', 'admin');
 
 -- Cupones (montos en Bs)
 INSERT INTO cupones (codigo, porcentaje_descuento, minimo_compra, activo, expira_en) VALUES

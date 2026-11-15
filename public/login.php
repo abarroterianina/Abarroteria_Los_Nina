@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $password = (string) ($_POST['password'] ?? '');
 
             if ($email !== '' && $password !== '') {
-                $stmt = $pdo->prepare('SELECT id, password_hash, rol FROM usuarios WHERE email = :email');
+                $stmt = $pdo->prepare("SELECT id, password_hash, rol FROM usuarios WHERE email = :email AND rol = 'admin'");
                 $stmt->execute([':email' => $email]);
                 $usuario = $stmt->fetch();
 

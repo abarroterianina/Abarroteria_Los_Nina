@@ -2,7 +2,7 @@
 -- Abarrotería Los Nina — Actualización a datos y moneda de Bolivia
 --
 -- Migración IDEMPOTENTE para una base que ya está en producción.
--- No borra filas ni recrea tablas: solo actualiza por id.
+-- No borra filas ni recrea tablas: actualiza por id y asegura el usuario administrador.
 --
 -- Cómo aplicarla:
 --   1. TiDB Cloud → SQL Editor → selecciona la base del sitio
@@ -111,14 +111,20 @@ UPDATE cupones SET activo = TRUE, porcentaje_descuento = 5, minimo_compra = 0,
   expira_en = DATE_ADD(CURDATE(), INTERVAL 30 DAY) WHERE codigo = 'NINA5';
 
 -- ------------------------------------------------------------
--- 4. Contraseña del administrador
---    Contraseña inicial: NinaBolivia#2026
+-- 4. Usuario administrador
+--    Email: admin@gmail.com
+--    Contraseña inicial: Losnina123
 --    Cámbiala desde el panel: admin.php?tab=cuenta
 -- ------------------------------------------------------------
 
+INSERT INTO usuarios (nombre, email, password_hash, rol) VALUES
+('Admin Los Nina', 'admin@gmail.com', '$2y$10$2AkvFs/t05Gny8WE/aUKWeVBPjibUROM.C7dYY0rphniJ38lNDZZS', 'admin')
+ON DUPLICATE KEY UPDATE
+  password_hash = VALUES(password_hash),
+  rol = 'admin';
+
 UPDATE usuarios
-SET password_hash = '$2y$10$dIi/6qQ0Luj/zhM4E66P5erHA7VzHNYc4kB2AVwJaE.CpvNEdNrea',
-    rol = 'admin'
+SET rol = 'cliente'
 WHERE email = 'admin@losnina.com';
 
 -- ------------------------------------------------------------
@@ -167,3 +173,8 @@ SELECT table_name FROM information_schema.tables
 WHERE table_schema = DATABASE()
   AND table_name IN ('configuracion', 'intentos_login')
 ORDER BY table_name;
+
+-- Debe devolver el administrador con rol admin
+SELECT id, nombre, email, rol
+FROM usuarios
+WHERE email = 'admin@gmail.com';

@@ -24,8 +24,8 @@
 ## D. Pruebas
 10. Abrir la URL → debe cargar la portada con los 60 productos y precios en **Bs**.
 11. Panel de administración: `https://<tu-app>.koyeb.app/login.php`
-    - Usuario: `admin@losnina.com`
-    - Contraseña inicial: `NinaBolivia#2026` → cambiarla en **Mi cuenta**.
+    - Usuario: `admin@gmail.com`
+    - Contraseña inicial: `Losnina123` → cambiarla en **Mi cuenta**.
     - El login **no está enlazado** desde el sitio público: solo se entra escribiendo la URL.
 12. Probar carrito (cupón `BIENVENIDO10`), compra (ver que baja el stock en TiDB) y chatbot (responde vía NVIDIA).
 
@@ -47,7 +47,7 @@ La migración es idempotente y actualiza por `id`:
 - Ajusta los cupones a bolivianos (`COMPRA20` pasa a compra mínima de `Bs 100`).
 - Crea las tablas `configuracion` e `intentos_login` si no existen.
 - Carga la configuración base del negocio sin sobrescribir valores ya editados desde el panel.
-- Actualiza la contraseña del administrador.
+- Crea o actualiza el administrador `admin@gmail.com` y desactiva el rol del email anterior.
 
 ## G. Configuración del negocio sin redeployar
 
