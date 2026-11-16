@@ -70,7 +70,7 @@ require __DIR__ . '/partials/navbar.php';
             <div class="card" style="margin-top: 2rem;">
                 <h3 style="margin-bottom: 1rem;">📍 Nuestra ubicación</h3>
                 <div class="map-embed">
-                    <iframe src="https://www.google.com/maps?q=-16.50524946625627,-68.20659040545875&z=18&output=embed"
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d568.6526063523161!2d-68.20648618992506!3d-16.504703594982765!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMTbCsDMwJzE3LjAiUyA2OMKwMTInMjMuMCJX!5e0!3m2!1ses!2sbo!4v1794802050293!5m2!1ses!2sbo"
                             allowfullscreen=""
                             loading="lazy"
                             referrerpolicy="strict-origin-when-cross-origin"
