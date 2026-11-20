@@ -11,7 +11,7 @@ require_once __DIR__ . '/../config/database.php';
 cabeceras_seguridad(true);
 requerir_admin();
 
-$tabsValidas = ['inicio', 'productos', 'cupones', 'cuenta'];
+$tabsValidas = ['inicio', 'productos', 'cupones', 'cuenta', 'bd'];
 
 $tab = $_GET['tab'] ?? 'inicio';
 if (!in_array($tab, $tabsValidas, true)) {
@@ -289,6 +289,7 @@ $productos = [];
 $cupones = [];
 $compras = [];
 $comprasDetalle = [];
+$tablasBd = [];
 
 try {
     $categorias = $pdo->query('SELECT id, nombre FROM categorias ORDER BY nombre')->fetchAll();
@@ -314,6 +315,51 @@ try {
         $stmt->execute($ids);
         foreach ($stmt->fetchAll() as $fila) {
             $comprasDetalle[(int) $fila['compra_id']][] = $fila;
+        }
+    }
+
+    if ($tab === 'bd') {
+        $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        $limite = 500;
+        $nombres = [];
+        if ($driver === 'sqlite') {
+            $nombres = $pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")->fetchAll(PDO::FETCH_COLUMN);
+        } else {
+            $stmtT = $pdo->prepare('SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_type = ? ORDER BY table_name');
+            $stmtT->execute(['BASE TABLE']);
+            $nombres = $stmtT->fetchAll(PDO::FETCH_COLUMN);
+        }
+        foreach ($nombres as $tname) {
+            if (!is_string($tname) || !preg_match('/^[A-Za-z0-9_]+$/', $tname)) {
+                continue;
+            }
+            $quoted = '`' . str_replace('`', '``', $tname) . '`';
+            $total = (int) $pdo->query("SELECT COUNT(*) AS c FROM {$quoted}")->fetchColumn();
+            $filas = $pdo->query("SELECT * FROM {$quoted} LIMIT {$limite}")->fetchAll(PDO::FETCH_ASSOC);
+            $columnas = [];
+            if (!empty($filas)) {
+                $columnas = array_keys($filas[0]);
+            } else {
+                if ($driver === 'sqlite') {
+                    $colsStmt = $pdo->query("PRAGMA table_info({$quoted})");
+                    foreach ($colsStmt->fetchAll(PDO::FETCH_ASSOC) as $c) {
+                        $columnas[] = $c['name'];
+                    }
+                } else {
+                    $colsStmt = $pdo->query("DESCRIBE {$quoted}");
+                    foreach ($colsStmt->fetchAll(PDO::FETCH_ASSOC) as $c) {
+                        $columnas[] = $c['Field'];
+                    }
+                }
+            }
+            $tablasBd[] = [
+                'nombre' => $tname,
+                'columnas' => $columnas,
+                'filas' => $filas,
+                'total' => $total,
+                'mostradas' => count($filas),
+                'limitado' => $total > $limite,
+            ];
         }
     }
 } catch (Throwable $e) {
@@ -369,6 +415,7 @@ require __DIR__ . '/partials/navbar.php';
                     'productos' => 'Productos',
                     'cupones' => 'Cupones',
                     'cuenta' => 'Mi cuenta',
+                    'bd' => 'Base de datos',
                 ];
                 ?>
                 <?php foreach ($etiquetas as $clave => $texto): ?>
@@ -708,6 +755,73 @@ require __DIR__ . '/partials/navbar.php';
                             <button type="submit" class="btn btn-primary">Actualizar contraseña</button>
                         </div>
                     </form>
+                </div>
+
+            <?php elseif ($tab === 'bd'): ?>
+                <div class="admin-card">
+                    <h2>Base de datos (<?= count($tablasBd) ?> tablas)</h2>
+                    <p class="admin-note">Vista de solo lectura de los datos reales. Se consultan todas las tablas al entrar a esta pestaña.</p>
+                </div>
+
+                <?php if (empty($tablasBd)): ?>
+                    <div class="admin-card">
+                        <p class="text-muted">No se encontraron tablas o no se pudieron cargar.</p>
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($tablasBd as $tbd): ?>
+                        <div class="admin-card">
+                            <h3>Tabla: <code><?= e($tbd['nombre']) ?></code> <span class="badge badge-muted"><?= (int) $tbd['total'] ?> filas</span></h3>
+                            <?php if ($tbd['limitado']): ?>
+                                <p class="admin-note">Mostrando <?= (int) $tbd['mostradas'] ?> de <?= (int) $tbd['total'] ?> filas.</p>
+                            <?php endif; ?>
+
+                            <?php if (empty($tbd['columnas'])): ?>
+                                <p class="text-muted">Sin columnas.</p>
+                            <?php else: ?>
+                                <div class="table-wrap">
+                                    <table class="data">
+                                        <thead>
+                                            <tr>
+                                                <?php foreach ($tbd['columnas'] as $col): ?>
+                                                    <th><?= e($col) ?></th>
+                                                <?php endforeach; ?>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if (empty($tbd['filas'])): ?>
+                                                <tr>
+                                                    <td colspan="<?= count($tbd['columnas']) ?>" class="text-muted">Tabla vacía.</td>
+                                                </tr>
+                                            <?php else: ?>
+                                                <?php foreach ($tbd['filas'] as $fila): ?>
+                                                    <tr>
+                                                        <?php foreach ($tbd['columnas'] as $col): ?>
+                                                            <?php $val = $fila[$col] ?? null; ?>
+                                                            <td>
+                                                                <?php if ($col === 'password_hash' && $val !== null): ?>
+                                                                    <span class="badge badge-muted">oculto</span>
+                                                                <?php elseif ($val === null): ?>
+                                                                    <span class="badge badge-muted">NULL</span>
+                                                                <?php else: ?>
+                                                                    <?= e((string) $val) ?>
+                                                                <?php endif; ?>
+                                                            </td>
+                                                        <?php endforeach; ?>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            <?php endif; ?>
+
+            <?php if ($tab !== 'bd'): ?>
+                <div class="admin-card" style="text-align: center; margin-top: 1rem;">
+                    <a href="admin.php?tab=bd" class="btn btn-outline">Ver datos de las tablas (BD)</a>
                 </div>
             <?php endif; ?>
         </div>
