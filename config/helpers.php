@@ -187,3 +187,36 @@ function whatsapp_enlace(?string $mensaje = null): string
     $texto = $mensaje ?? 'Hola, quiero hacer un pedido en Abarrotería Los Nina.';
     return 'https://wa.me/' . $numero . '?text=' . rawurlencode($texto);
 }
+
+/**
+ * Normaliza y valida un celular boliviano (8 dígitos, inicia en 6 o 7).
+ * Acepta el número local; si se incluye prefijo 591 lo ignora.
+ * Devuelve el número con prefijo 591 para WhatsApp o null si es inválido.
+ */
+function normalizar_telefono_bolivia($valor): ?string
+{
+    $digitos = preg_replace('/[^0-9]/', '', trim((string) $valor));
+    if (is_string($digitos) && strpos($digitos, '591') === 0 && strlen($digitos) === 11) {
+        $digitos = substr($digitos, 3);
+    }
+    if (!is_string($digitos) || !preg_match('/^[67]\d{7}$/', $digitos)) {
+        return null;
+    }
+    return '591' . $digitos;
+}
+
+/**
+ * Enlace wa.me para un número de cliente (ya normalizado o local de 8 dígitos).
+ */
+function whatsapp_enlace_cliente(string $telefono, string $mensaje = ''): string
+{
+    $numero = preg_replace('/[^0-9]/', '', $telefono);
+    if (preg_match('/^[67]\d{7}$/', $numero)) {
+        $numero = '591' . $numero;
+    }
+    $url = 'https://wa.me/' . $numero;
+    if ($mensaje !== '') {
+        $url .= '?text=' . rawurlencode($mensaje);
+    }
+    return $url;
+}

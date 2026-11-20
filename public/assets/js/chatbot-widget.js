@@ -1,4 +1,4 @@
-// Abarrotería Los Nina — chatbot-widget.js (widget flotante del bot)
+// Abarrotería Los Nina — chatbot-widget.js (asistente informativo de productos y precios)
 'use strict';
 
 function initChatWidget() {
@@ -48,13 +48,13 @@ function initChatWidget() {
         }
     }
 
-    function sendMessage(mensaje, reserva) {
+    function sendMessage(mensaje) {
         addUserMessage(mensaje);
         showTyping();
         fetch('chatbot.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ mensaje: mensaje, reserva: reserva || null })
+            body: JSON.stringify({ mensaje: mensaje })
         })
             .then(function (res) { return res.json(); })
             .then(function (data) {
@@ -103,18 +103,7 @@ function initChatWidget() {
     });
 
     window.LosNinaBot = {
-        send: sendMessage,
-        sendReservation: function (productoId, cantidad, nombre, telefono) {
-            sendMessage(
-                'Quiero reservar el producto ' + productoId + ' x' + cantidad,
-                {
-                    producto_id: productoId,
-                    cantidad: cantidad,
-                    nombre_cliente: nombre || '',
-                    telefono: telefono || ''
-                }
-            );
-        }
+        send: sendMessage
     };
 }
 

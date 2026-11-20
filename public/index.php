@@ -76,7 +76,7 @@ require __DIR__ . '/partials/navbar.php';
 
                 <div class="hero-actions">
                     <a href="inventario.php" class="btn btn-accent btn-lg">Ver productos</a>
-                    <a href="contacto.php" class="btn btn-outline btn-lg">Contáctanos</a>
+                    <a href="<?= e(whatsapp_enlace()) ?>" target="_blank" rel="noopener" class="btn btn-outline btn-lg">WhatsApp</a>
                 </div>
             </div>
         </div>

@@ -13,7 +13,7 @@
 -- Notas:
 --   - Los precios están en bolivianos (Bs).
 --   - Los productos se actualizan por id. Los ids NO cambian porque
---     compra_detalle y reservas los referencian con clave foránea.
+--     compra_detalle los referencia con clave foránea.
 --   - El stock de los productos con ventas registradas (9, 28 y 45)
 --     se deja como está; el resto toma el stock del catálogo nuevo.
 -- ============================================================
@@ -36,6 +36,34 @@ CREATE TABLE IF NOT EXISTS intentos_login (
   fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   KEY idx_intentos_ip_fecha (ip, fecha)
 );
+
+-- ------------------------------------------------------------
+-- 1b. Limpieza de tablas/roles en desuso (migración idempotente)
+-- ------------------------------------------------------------
+
+DROP TABLE IF EXISTS reservas;
+DROP TABLE IF EXISTS mensajes_contacto;
+
+UPDATE compras
+SET usuario_id = NULL
+WHERE usuario_id IN (SELECT id FROM (SELECT id FROM usuarios WHERE rol <> 'admin') AS u);
+
+DELETE FROM usuarios WHERE rol <> 'admin';
+ALTER TABLE usuarios MODIFY rol ENUM('admin') NOT NULL DEFAULT 'admin';
+
+-- Teléfono del cliente en compras (solicitudes sin login)
+SET @col_tel := (
+  SELECT COUNT(*) FROM information_schema.COLUMNS
+  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'compras' AND COLUMN_NAME = 'telefono_cliente'
+);
+SET @ddl_tel := IF(
+  @col_tel = 0,
+  'ALTER TABLE compras ADD COLUMN telefono_cliente VARCHAR(20) NULL AFTER usuario_id',
+  'SELECT 1'
+);
+PREPARE stmt_tel FROM @ddl_tel; EXECUTE stmt_tel; DEALLOCATE PREPARE stmt_tel;
+
+ALTER TABLE compras MODIFY estado ENUM('pendiente', 'completada', 'cancelada') NOT NULL DEFAULT 'pendiente';
 
 -- ------------------------------------------------------------
 -- 2. Catálogo de productos (60) — precios en Bs
@@ -123,10 +151,6 @@ ON DUPLICATE KEY UPDATE
   password_hash = VALUES(password_hash),
   rol = 'admin';
 
-UPDATE usuarios
-SET rol = 'cliente'
-WHERE email = 'admin@losnina.com';
-
 -- ------------------------------------------------------------
 -- 5. Configuración del negocio
 --    Solo inserta las claves que falten: si ya existe un valor
@@ -168,13 +192,21 @@ SELECT id, nombre, stock FROM productos WHERE stock < 5 ORDER BY id;
 SELECT codigo, porcentaje_descuento, minimo_compra, activo, expira_en
 FROM cupones ORDER BY codigo;
 
--- Debe devolver 2 tablas nuevas
+-- Debe devolver 2 tablas auxiliares
 SELECT table_name FROM information_schema.tables
 WHERE table_schema = DATABASE()
   AND table_name IN ('configuracion', 'intentos_login')
 ORDER BY table_name;
 
--- Debe devolver el administrador con rol admin
-SELECT id, nombre, email, rol
-FROM usuarios
-WHERE email = 'admin@gmail.com';
+-- Debe incluir telefono_cliente en compras
+SELECT column_name FROM information_schema.columns
+WHERE table_schema = DATABASE() AND table_name = 'compras' AND column_name = 'telefono_cliente';
+
+-- No debe devolver filas (tablas en desuso eliminadas)
+SELECT table_name FROM information_schema.tables
+WHERE table_schema = DATABASE()
+  AND table_name IN ('reservas', 'mensajes_contacto')
+ORDER BY table_name;
+
+-- Debe devolver el administrador con rol admin y ningún usuario adicional no deseado
+SELECT id, nombre, email, rol FROM usuarios;

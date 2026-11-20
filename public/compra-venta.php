@@ -18,6 +18,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $data = json_decode(file_get_contents('php://input'), true);
 $items = isset($data['items']) && is_array($data['items']) ? $data['items'] : [];
 $cupon = isset($data['cupon']) ? strtoupper(trim($data['cupon'])) : '';
+$telefonoRaw = isset($data['telefono']) ? (string) $data['telefono'] : '';
+
+$telefono = normalizar_telefono_bolivia($telefonoRaw);
+if ($telefono === null) {
+    echo json_encode(['exito' => false, 'mensaje' => 'Ingresa un número de celular boliviano válido: 8 dígitos que comiencen con 6 o 7.']);
+    exit;
+}
 
 if (empty($items)) {
     echo json_encode(['exito' => false, 'mensaje' => 'El carrito está vacío']);
@@ -37,7 +44,7 @@ try {
     $lineas = [];
     $subtotal = 0.0;
 
-    // Precios y stock SIEMPRE desde la base de datos (nunca desde el cliente).
+    // Precios SIEMPRE desde la base de datos (nunca desde el cliente).
     foreach ($items as $item) {
         $pid = (int) $item['id'];
         $cantidad = (int) $item['cantidad'];
@@ -93,22 +100,23 @@ try {
 
     $total = round($subtotal - $descuento, 2);
 
+    // Registrar solicitud como pendiente (el stock se descuenta al concretar en el panel admin).
     $insertCompra = $pdo->prepare(
-        'INSERT INTO compras (usuario_id, total, descuento_aplicado, cupon_usado, estado) VALUES (:uid, :total, :desc, :cupon, :estado)'
+        'INSERT INTO compras (usuario_id, telefono_cliente, total, descuento_aplicado, cupon_usado, estado) VALUES (:uid, :tel, :total, :desc, :cupon, :estado)'
     );
     $insertCompra->execute([
         ':uid' => $_SESSION['usuario_id'] ?? null,
+        ':tel' => $telefono,
         ':total' => $total,
         ':desc' => $descuento,
         ':cupon' => $cuponUsado,
-        ':estado' => 'completada',
+        ':estado' => 'pendiente',
     ]);
     $compraId = (int) $pdo->lastInsertId();
 
     $insDetalle = $pdo->prepare(
         'INSERT INTO compra_detalle (compra_id, producto_id, cantidad, subtotal) VALUES (:cid, :pid, :cant, :sub)'
     );
-    $updStock = $pdo->prepare('UPDATE productos SET stock = stock - :cant WHERE id = :id');
 
     foreach ($lineas as $linea) {
         $insDetalle->execute([
@@ -116,10 +124,6 @@ try {
             ':pid' => $linea['id'],
             ':cant' => $linea['cantidad'],
             ':sub' => $linea['subtotal'],
-        ]);
-        $updStock->execute([
-            ':cant' => $linea['cantidad'],
-            ':id' => $linea['id'],
         ]);
     }
 
@@ -131,10 +135,14 @@ try {
         'subtotal' => $subtotal,
         'descuento' => $descuento,
         'total' => $total,
+        'estado' => 'pendiente',
+        'telefono' => $telefono,
     ]);
 } catch (Exception $e) {
-    $pdo->rollBack();
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     // El detalle técnico va al log, nunca al cliente.
     error_log('[compra-venta] ' . $e->getMessage());
-    echo json_encode(['exito' => false, 'mensaje' => 'No se pudo completar la compra. Revisa el stock e intenta de nuevo.']);
+    echo json_encode(['exito' => false, 'mensaje' => 'No se pudo enviar tu solicitud. Revisa el stock e intenta de nuevo.']);
 }

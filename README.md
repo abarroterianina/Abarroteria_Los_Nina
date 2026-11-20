@@ -27,35 +27,35 @@
     - Usuario: `admin@gmail.com`
     - Contraseña inicial: `Losnina123` → cambiarla en **Mi cuenta**.
     - El login **no está enlazado** desde el sitio público: solo se entra escribiendo la URL.
-12. Probar carrito (cupón `BIENVENIDO10`), compra (ver que baja el stock en TiDB) y chatbot (responde vía NVIDIA).
+12. Probar carrito (cupón `BIENVENIDO10`, teléfono boliviano 8 dígitos inicia 6/7), envío de solicitud de compra, confirmación en el panel admin (descuenta stock al concretar) y el asistente (responde consultas de productos y precios vía NVIDIA).
 
 ## E. Actualizaciones
 13. Cada `git push` al repo → Koyeb redeploya automáticamente (igual que Vercel).
 
 ## F. Migrar una base que ya está en producción
 
-Si el sitio ya está desplegado con los datos antiguos (precios en soles y productos peruanos), **no hay que borrar nada ni volver a crear tablas**:
+Si el sitio ya está desplegado con una versión anterior, aplicá la migración idempotente sin borrar filas ni recrear tablas:
 
 1. Abrir el SQL Editor de TiDB Cloud y seleccionar la misma base que usa `DATABASE_URL`.
 2. Pegar TODO el contenido de `sql/actualizacion_bolivia.sql` → Run.
-3. Revisar las consultas de verificación del final del archivo (60 productos, 3 cupones, 2 tablas nuevas).
+3. Revisar las consultas de verificación del final del archivo.
 
-La migración es idempotente y actualiza por `id`:
+La migración:
 
-- Reescribe nombre, categoría, descripción, precio y emoji de los 60 productos con marcas bolivianas y precios en **Bs**.
-- Preserva el stock de los productos que ya tienen ventas registradas (ids 9, 28 y 45).
-- Ajusta los cupones a bolivianos (`COMPRA20` pasa a compra mínima de `Bs 100`).
+- Actualiza por `id` el catálogo (60 productos, precios en **Bs**), preservando el stock de productos con ventas registradas (ids 9, 28 y 45).
+- Ajusta los cupones a bolivianos (p. ej. `COMPRA20` con compra mínima de `Bs 100`).
+- Agrega `telefono_cliente` a `compras` y deja nuevas solicitudes como `pendiente` (sin alterar compras históricas).
 - Crea las tablas `configuracion` e `intentos_login` si no existen.
+- Elimina tablas en desuso (`reservas`, `mensajes_contacto`) y deja usuarios solo con rol `admin`.
+- Crea o actualiza el administrador `admin@gmail.com`.
 - Carga la configuración base del negocio sin sobrescribir valores ya editados desde el panel.
-- Crea o actualiza el administrador `admin@gmail.com` y desactiva el rol del email anterior.
 
 ## G. Configuración del negocio sin redeployar
 
-Los datos que aparecen en el sitio y en el chatbot se guardan en la tabla `configuracion` y se editan desde
-`admin.php?tab=configuracion`: nombre, eslogan, ciudad, dirección, teléfono, WhatsApp, correo, horario,
-costo de delivery, delivery gratis desde y símbolo de moneda.
+Los datos del negocio se guardan en la tabla `configuracion` y se editan desde `admin.php?tab=configuracion`: nombre,
+eslogan, ciudad, dirección, teléfono, WhatsApp, correo, horario, costo de delivery, delivery gratis desde y símbolo de moneda.
 
-Se leen en cada visita, así que **no hace falta volver a desplegar** para cambiarlos.
+Se leen en cada visita (sitio/panel), así que **no hace falta volver a desplegar** para cambiarlos.
 
 ## H. Notas técnicas
 
@@ -63,6 +63,6 @@ Se leen en cada visita, así que **no hace falta volver a desplegar** para cambi
   `config/prepend.php`, que marca la cookie como `Secure` cuando la conexión es HTTPS.
 - `public/.htaccess` bloquea el listado de directorios y la descarga de `.sql`, `.md`, `.ini` y similares.
 - `public/robots.txt` mantiene fuera de los buscadores el login, el panel y los endpoints internos.
-- El chatbot requiere conexión a internet para llamar a NVIDIA NIM. Plan gratuito: 500 requests/mes;
-  si se agota, el bot responde con un mensaje de error controlado.
+- Flujo de compra sin login: el cliente envía una solicitud con su celular boliviano (8 dígitos, inicia 6/7); el admin coordina por WhatsApp y al marcarla como concretada se descuenta el stock.
+- El asistente informativo (productos y precios) y la validación de cupones usan `chatbot.php` con NVIDIA NIM; requiere conexión a internet. Plan gratuito: 500 requests/mes; si se agota, responde con un mensaje de error controlado.
 - No hay Composer, npm ni frameworks: solo PHP 8 y PDO.

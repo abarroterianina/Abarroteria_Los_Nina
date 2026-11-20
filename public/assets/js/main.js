@@ -279,24 +279,27 @@ async function handleCoupon(event) {
     }
 }
 
-/* Muestra la confirmación centrada tras una compra exitosa. */
+/* Muestra la confirmación centrada tras enviar la solicitud. */
 function openPurchaseSuccess(data) {
     const modal = document.getElementById('purchase-success');
     if (!modal) {
-        // Sin el modal en la página, al menos avisamos con el toast.
-        showToast('¡Compra realizada con éxito!', 'success');
+        showToast('¡Solicitud recibida!', 'success');
         return;
     }
 
     const pedido = document.getElementById('purchase-order');
     const total = document.getElementById('purchase-total');
     const nota = document.getElementById('purchase-discount');
+    const telefono = document.getElementById('purchase-phone');
 
     if (pedido) {
         pedido.textContent = '#' + (parseInt(data.compra_id, 10) || 0);
     }
     if (total) {
         total.textContent = formatPrice(data.total);
+    }
+    if (telefono) {
+        telefono.textContent = data.telefono || '';
     }
     if (nota) {
         const descuento = parseFloat(data.descuento) || 0;
@@ -381,34 +384,50 @@ async function handleFinalizar(event) {
         showToast('Tu carrito está vacío', 'warning');
         return;
     }
+    const telInput = document.getElementById('telefono-cliente');
+    const telefono = telInput ? telInput.value.trim() : '';
+    let telLimpio = telefono.replace(/[^0-9]/g, '');
+    if (telLimpio.indexOf('591') === 0 && telLimpio.length === 11) {
+        telLimpio = telLimpio.slice(3);
+    }
+    if (!/^[67]\d{7}$/.test(telLimpio)) {
+        showToast('Ingresa un número de celular boliviano válido: 8 dígitos que comiencen con 6 o 7.', 'error');
+        if (telInput) {
+            telInput.focus();
+        }
+        return;
+    }
     const btn = document.getElementById('finalizar-btn');
     if (btn) {
         btn.disabled = true;
-        btn.textContent = 'Procesando...';
+        btn.textContent = 'Enviando...';
     }
     try {
         const response = await fetch('compra-venta.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items: cart, cupon: (getCoupon() || {}).codigo || '' })
+            body: JSON.stringify({ items: cart, cupon: (getCoupon() || {}).codigo || '', telefono: telLimpio })
         });
         const data = await response.json();
         if (btn) {
             btn.disabled = false;
-            btn.textContent = 'Finalizar compra';
+            btn.textContent = 'Enviar solicitud de compra';
         }
         if (data.exito) {
             clearLocalCartState();
+            if (telInput) {
+                telInput.value = '';
+            }
             openPurchaseSuccess(data);
         } else {
-            showToast(data.mensaje || 'Error al procesar la compra', 'error');
+            showToast(data.mensaje || 'Error al enviar la solicitud', 'error');
         }
     } catch (error) {
         if (btn) {
             btn.disabled = false;
-            btn.textContent = 'Finalizar compra';
+            btn.textContent = 'Enviar solicitud de compra';
         }
-        showToast('Error de conexión al procesar la compra', 'error');
+        showToast('Error de conexión al enviar la solicitud', 'error');
     }
 }
 

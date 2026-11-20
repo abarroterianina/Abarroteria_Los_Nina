@@ -60,7 +60,12 @@ require __DIR__ . '/partials/navbar.php';
                     <hr>
 
                     <form id="finalizar-form">
-                        <button type="submit" id="finalizar-btn" class="btn btn-accent btn-lg btn-block">Finalizar compra</button>
+                        <div style="margin-bottom: 1rem;">
+                            <label for="telefono-cliente">Número de celular (WhatsApp)</label>
+                            <input class="input" type="tel" id="telefono-cliente" name="telefono" inputmode="tel" autocomplete="tel" placeholder="Ej: 71234567" required>
+                            <p class="text-muted" style="margin-top: 0.35rem; font-size: 0.85rem;">Ingresa tu número boliviano de 8 dígitos (comienza con 6 o 7) para coordinar tu pedido.</p>
+                        </div>
+                        <button type="submit" id="finalizar-btn" class="btn btn-accent btn-lg btn-block">Enviar solicitud de compra</button>
                     </form>
                 </aside>
             </div>
@@ -76,19 +81,23 @@ require __DIR__ . '/partials/navbar.php';
          aria-labelledby="purchase-success-title"
          aria-describedby="purchase-success-desc">
         <span class="purchase-icon" aria-hidden="true">✓</span>
-        <h2 id="purchase-success-title" class="purchase-title">¡Compra realizada con éxito!</h2>
+        <h2 id="purchase-success-title" class="purchase-title">¡Solicitud recibida!</h2>
         <p id="purchase-success-desc" class="purchase-desc">
-            Registramos tu pedido. Nos pondremos en contacto para coordinar la entrega.
+            Registramos tu pedido. Nos comunicaremos contigo por WhatsApp al número indicado para coordinar el pago y la entrega.
         </p>
 
         <dl class="purchase-details">
             <div class="purchase-detail">
-                <dt>Pedido</dt>
+                <dt>Solicitud</dt>
                 <dd id="purchase-order">—</dd>
             </div>
             <div class="purchase-detail">
                 <dt>Total</dt>
                 <dd id="purchase-total">—</dd>
+            </div>
+            <div class="purchase-detail">
+                <dt>Teléfono</dt>
+                <dd id="purchase-phone">—</dd>
             </div>
         </dl>
 

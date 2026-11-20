@@ -24,7 +24,7 @@ if (!defined('LOS_NINA_APP')) {
                 <a href="inventario.php">Inventario</a>
                 <a href="carrito.php">Carrito</a>
                 <a href="nosotros.php">Nosotros</a>
-                <a href="contacto.php">Contacto</a>
+                <a href="<?= e(whatsapp_enlace()) ?>" target="_blank" rel="noopener">WhatsApp</a>
             </div>
 
             <div class="footer-col">
@@ -39,7 +39,7 @@ if (!defined('LOS_NINA_APP')) {
                 <?php if (config_get('telefono') !== ''): ?>
                     <p><a href="tel:<?= e(preg_replace('/[^0-9+]/', '', config_get('telefono'))) ?>">📞 <?= e(config_get('telefono')) ?></a></p>
                 <?php endif; ?>
-                <p>Pedidos por el asistente 💬</p>
+                <p>Consulta productos y precios 💬</p>
             </div>
         </div>
 

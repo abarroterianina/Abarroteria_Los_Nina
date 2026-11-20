@@ -14,13 +14,13 @@ CREATE TABLE categorias (
   nombre VARCHAR(50) NOT NULL UNIQUE
 );
 
--- Usuarios (admin y clientes)
+-- Usuarios (solo administradores)
 CREATE TABLE usuarios (
   id INT AUTO_INCREMENT PRIMARY KEY,
   nombre VARCHAR(100) NOT NULL,
   email VARCHAR(100) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
-  rol ENUM('admin', 'cliente') DEFAULT 'cliente',
+  rol ENUM('admin') NOT NULL DEFAULT 'admin',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -38,15 +38,16 @@ CREATE TABLE productos (
   FOREIGN KEY (categoria_id) REFERENCES categorias(id)
 );
 
--- Compras
+-- Compras (solicitudes/pedidos)
 CREATE TABLE compras (
   id INT AUTO_INCREMENT PRIMARY KEY,
   usuario_id INT NULL,
+  telefono_cliente VARCHAR(20) NOT NULL,
   total DECIMAL(10,2) NOT NULL,
   descuento_aplicado DECIMAL(10,2) DEFAULT 0,
   cupon_usado VARCHAR(50) NULL,
   fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  estado ENUM('pendiente', 'completada', 'cancelada') DEFAULT 'completada',
+  estado ENUM('pendiente', 'completada', 'cancelada') DEFAULT 'pendiente',
   KEY idx_compras_fecha (fecha),
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
@@ -62,19 +63,6 @@ CREATE TABLE compra_detalle (
   FOREIGN KEY (producto_id) REFERENCES productos(id)
 );
 
--- Reservas (hechas vía chatbot)
-CREATE TABLE reservas (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  nombre_cliente VARCHAR(100) NOT NULL,
-  telefono VARCHAR(20) NOT NULL,
-  producto_id INT NOT NULL,
-  cantidad INT NOT NULL,
-  fecha_reserva TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  estado ENUM('pendiente', 'confirmada', 'cancelada') DEFAULT 'pendiente',
-  KEY idx_reservas_fecha (fecha_reserva),
-  FOREIGN KEY (producto_id) REFERENCES productos(id)
-);
-
 -- Cupones de descuento
 CREATE TABLE cupones (
   codigo VARCHAR(50) PRIMARY KEY,
@@ -82,15 +70,6 @@ CREATE TABLE cupones (
   minimo_compra DECIMAL(10,2) DEFAULT 0,
   activo BOOLEAN DEFAULT TRUE,
   expira_en DATE
-);
-
--- Mensajes de contacto
-CREATE TABLE mensajes_contacto (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  nombre VARCHAR(100) NOT NULL,
-  email VARCHAR(100) NOT NULL,
-  mensaje TEXT NOT NULL,
-  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Configuración editable del negocio (clave/valor)
