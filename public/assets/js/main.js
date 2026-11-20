@@ -386,11 +386,7 @@ async function handleFinalizar(event) {
     }
     const telInput = document.getElementById('telefono-cliente');
     const telefono = telInput ? telInput.value.trim() : '';
-    let telLimpio = telefono.replace(/[^0-9]/g, '');
-    if (telLimpio.indexOf('591') === 0 && telLimpio.length === 11) {
-        telLimpio = telLimpio.slice(3);
-    }
-    if (!/^[67]\d{7}$/.test(telLimpio)) {
+    if (!/^[67]\d{7}$/.test(telefono)) {
         showToast('Ingresa un número de celular boliviano válido: 8 dígitos que comiencen con 6 o 7.', 'error');
         if (telInput) {
             telInput.focus();
@@ -406,7 +402,7 @@ async function handleFinalizar(event) {
         const response = await fetch('compra-venta.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items: cart, cupon: (getCoupon() || {}).codigo || '', telefono: telLimpio })
+            body: JSON.stringify({ items: cart, cupon: (getCoupon() || {}).codigo || '', telefono: telefono })
         });
         const data = await response.json();
         if (btn) {

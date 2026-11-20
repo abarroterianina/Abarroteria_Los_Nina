@@ -18,13 +18,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $data = json_decode(file_get_contents('php://input'), true);
 $items = isset($data['items']) && is_array($data['items']) ? $data['items'] : [];
 $cupon = isset($data['cupon']) ? strtoupper(trim($data['cupon'])) : '';
-$telefonoRaw = isset($data['telefono']) ? (string) $data['telefono'] : '';
+$telefonoRaw = isset($data['telefono']) ? trim((string) $data['telefono']) : '';
 
-$telefono = normalizar_telefono_bolivia($telefonoRaw);
-if ($telefono === null) {
+if (!preg_match('/^[67]\d{7}$/', $telefonoRaw)) {
     echo json_encode(['exito' => false, 'mensaje' => 'Ingresa un número de celular boliviano válido: 8 dígitos que comiencen con 6 o 7.']);
     exit;
 }
+$telefono = '591' . $telefonoRaw;
 
 if (empty($items)) {
     echo json_encode(['exito' => false, 'mensaje' => 'El carrito está vacío']);

@@ -189,20 +189,16 @@ function whatsapp_enlace(?string $mensaje = null): string
 }
 
 /**
- * Normaliza y valida un celular boliviano (8 dígitos, inicia en 6 o 7).
- * Acepta el número local; si se incluye prefijo 591 lo ignora.
+ * Normaliza y valida un celular boliviano: 8 dígitos que comiencen con 6 o 7.
  * Devuelve el número con prefijo 591 para WhatsApp o null si es inválido.
  */
 function normalizar_telefono_bolivia($valor): ?string
 {
-    $digitos = preg_replace('/[^0-9]/', '', trim((string) $valor));
-    if (is_string($digitos) && strpos($digitos, '591') === 0 && strlen($digitos) === 11) {
-        $digitos = substr($digitos, 3);
-    }
-    if (!is_string($digitos) || !preg_match('/^[67]\d{7}$/', $digitos)) {
+    $telefono = trim((string) $valor);
+    if (!preg_match('/^[67]\d{7}$/', $telefono)) {
         return null;
     }
-    return '591' . $digitos;
+    return '591' . $telefono;
 }
 
 /**
